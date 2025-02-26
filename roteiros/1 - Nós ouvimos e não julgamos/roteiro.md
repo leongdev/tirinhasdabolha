@@ -1,16 +1,32 @@
-**Roteiro:**
-1. **Cena 1:**  
-	**Cenário:**  
-		Descreva brevemente onde a ação se passa (ex.: escritório, home office, conferência, etc.).
-	**Roteiro:**
-		- [Dev] Entra no ambiente comentando algo sobre o dia ou um novo bug.
-		- [Tester] Faz uma observação irônica ou engraçada.
+# Quadro 1:  
+
+### Cenário:
+	Dentro do escritório, atrás de um celular fazendo a trend "Nós ouvimos e não julgamos"
+	
+### Roteiro:
+- [ Todos ] "Nós ouvimos e não julgamos" 
    
-2. **Cena 2:**  
-	**Cenário:**  
-		Descreva brevemente onde a ação se passa (ex.: escritório, home office, conferência, etc.).
-	**Roteiro:**
-	   - [Dev] Explica de forma confusa a situação.
-	   - [Tester] Responde com um comentário sarcástico.
+# Quadro 2:
+
+### Cenário:
+	Ainda no escritório e agora com o frame focando em cada um dos devs
+
+### Roteiro:
+- [ Dev A ] "Semana passada eu gerei a mesma build duas vezes só pra enganar o QA"
+- [ Todos ] "Nós ouvimos e não julgamos"
+- [ Dev B ] "Ontém eu aprovei 3 PRs sem revisar"
+- [ Todos ] "Nós ouvimos e não julgamos"
+- [ Dev C ] "Eu odeio usar tab e esse tempo todo to programando usando a barra de espaço!"
+- [ Dev C ] "Nós ouvimos e não julg...?" 
+
+# Quadro 3:
+
+### Cenário:
+	Na sala do RH
+
+### Roteiro:
+- [ RH ] "Então, eu te chamei pra falar que você foi promovido..."
+- [ RH ] "...promovido a cliente!"
+  
 **Notas:**  
-- Aqui você pode incluir dicas para o ilustrador ou observações sobre a cena.
+- Na última linha do roteiro do quadro 2, o Dev A+B com cara de WTF e Dev C com cara de confusão
