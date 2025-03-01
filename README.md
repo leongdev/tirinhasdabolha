@@ -18,25 +18,36 @@ Lembre-se: a contribuição de cada um é essencial para que este repositório s
 ## Modelo de Roteiro / Template
 
 Para facilitar sua participação, criamos um modelo de roteiro que você pode utilizar como base:
+
 # Título da Tira
 
-**Personagens:**  
-- **Dev:** (ex.: Dev sempre atolado em código)  
-- **Tester:** (ex.: Pessoa que sempre acha um bug)
-- Outros personagens (se necessário).
+# Quadro 1:  
 
-**Roteiro:**
+### Cenário:
+Descreva brevemente onde a ação se passa (ex.: escritório, home office, conferência, etc.).
 
-1. **Cena 1:**  
-	**Cenário:**  
-	* Descreva brevemente onde a ação se passa (ex.: escritório, home office, conferência, etc.).
-	
-    **Roteiro:**
-    - [Dev] Entra no ambiente comentando algo sobre o dia ou um novo bug.
-   	- [Tester] Faz uma observação irônica ou engraçada.
-   
-2. **Cena 2:**  
-    [ Mesma coisa ]
+### Roteiro:
+- [ Personagem ] "Fala ou ação do personagem"
+- [ Outro Personagem ] "Resposta ou reação"
+- [ Narrador ] "Descrição da cena, se necessário"
+
+# Quadro 2:
+
+### Cenário:
+Continuação ou mudança de ambiente.
+
+### Roteiro:
+- [ Personagem ] "Continuação do diálogo"
+- [ Outro Personagem ] "Reação à situação"
+
+# Quadro 3:
+
+### Cenário:
+Ambientação final ou clímax da tirinha.
+
+### Roteiro:
+- [ Personagem ] "Fala que leva ao desfecho"
+- [ Outro Personagem ] "Punchline ou conclusão"
 
 **Notas:**  
 - Aqui você pode incluir dicas para o ilustrador ou observações sobre a cena.
