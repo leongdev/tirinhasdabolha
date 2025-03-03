@@ -1,65 +1,50 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Verificar se já está autenticado
-    if (isAuthenticated()) {
-        window.location.href = 'admin.html';
+    const isAuthenticated = localStorage.getItem('authenticated') === 'true';
+    
+    // Se já estiver autenticado e estiver na página de login, redirecionar
+    if (isAuthenticated && window.location.pathname.includes('login.html')) {
+        const params = new URLSearchParams(window.location.search);
+        const fromPage = params.get('from');
+        
+        if (fromPage === 'admin') {
+            window.location.href = 'admin.html';
+        } else {
+            window.location.href = 'index.html';
+        }
         return;
     }
     
-    // Adicionar evento ao formulário de login
-    document.getElementById('login-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-        
-        // Credenciais padrão (em produção, use um sistema mais seguro)
-        // Normalmente essas credenciais viriam de um backend
-        const validUsername = 'admin';
-        const validPassword = 'admin123';
-        
-        if (username === validUsername && password === validPassword) {
-            // Login bem-sucedido
-            const sessionToken = generateSessionToken();
+    // Configuração do formulário de login
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            // Salvar token de autenticação (expira em 24 horas)
-            const expiryTime = Date.now() + (24 * 60 * 60 * 1000);
-            localStorage.setItem('blog-auth', JSON.stringify({
-                token: sessionToken,
-                expiry: expiryTime
-            }));
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
             
-            // Redirecionar para a área admin
-            window.location.href = 'admin.html';
-        } else {
-            // Login falhou
-            document.getElementById('login-error').classList.remove('hidden');
-            
-            // Limpar senha
-            document.getElementById('password').value = '';
-        }
-    });
-    
-    // Função para gerar um token de sessão aleatório
-    function generateSessionToken() {
-        return Math.random().toString(36).substring(2, 15) + 
-               Math.random().toString(36).substring(2, 15);
-    }
-    
-    // Verificar se está autenticado
-    function isAuthenticated() {
-        try {
-            const auth = JSON.parse(localStorage.getItem('blog-auth'));
-            if (!auth) return false;
-            
-            // Verificar se a sessão expirou
-            if (Date.now() > auth.expiry) {
-                localStorage.removeItem('blog-auth');
-                return false;
+            // Verificação simples (substitua por sua própria lógica de autenticação)
+            if (username === 'admin' && password === 'senha123') {
+                localStorage.setItem('authenticated', 'true');
+                
+                // Redirecionar para a página correta
+                const params = new URLSearchParams(window.location.search);
+                const fromPage = params.get('from');
+                
+                if (fromPage === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } else {
+                // Exibir mensagem de erro
+                const errorMessage = document.getElementById('error-message');
+                if (errorMessage) {
+                    errorMessage.textContent = 'Usuário ou senha incorretos';
+                    errorMessage.classList.remove('hidden');
+                }
             }
-            
-            return true;
-        } catch (error) {
-            return false;
-        }
+        });
     }
 }); 

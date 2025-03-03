@@ -1,9 +1,22 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Carregar os posts ao iniciar a página
-    loadPosts();
+    loadBlogPosts();
     
     // Criar o modal para exibir posts (adicionado ao body)
     createPostModal();
+    
+    // Adicionar classe para animação suave ao scroll
+    document.body.classList.add('smooth-scroll');
+    
+    // Detectar scroll para efeitos na navegação
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('.site-header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
 
     // Função para carregar os posts do localStorage
     function loadPosts() {
@@ -172,5 +185,281 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Impedir scroll no body
         document.body.classList.add('overflow-hidden');
+    }
+
+    // Adicionar função para verificar se a imagem está no localStorage
+    function getImageSrc(imagePath) {
+        // Verificar se a imagem está no localStorage
+        const storedImages = JSON.parse(localStorage.getItem('storedImages') || '{}');
+        if (storedImages[imagePath]) {
+            return storedImages[imagePath];
+        }
+        // Se não estiver, retornar o caminho original
+        return imagePath;
+    }
+
+    // Modificar a função de renderização para usar a função getImageSrc
+    function renderPosts(posts) {
+        // Find the container using the class name from index.html
+        const postsContainer = document.querySelector('.blog-container');
+        if (!postsContainer) {
+            console.error('Blog container not found');
+            return;
+        }
+        
+        postsContainer.innerHTML = '';
+        
+        if (posts.length === 0) {
+            postsContainer.innerHTML = '<p class="text-center text-gray-500 my-8">Nenhum post encontrado.</p>';
+            return;
+        }
+        
+        posts.forEach(post => {
+            // Obter o caminho da imagem correto
+            const coverImageSrc = getImageSrc(post.coverImage);
+            
+            const postElement = document.createElement('article');
+            postElement.className = 'bg-white rounded-lg shadow-md overflow-hidden mb-8';
+            postElement.innerHTML = `
+                <div class="flex flex-col md:flex-row">
+                    ${post.coverImage ? `
+                    <div class="md:w-1/3 h-48 md:h-auto">
+                        <img src="${coverImageSrc}" alt="${post.title}" class="w-full h-full object-cover">
+                    </div>` : ''}
+                    <div class="p-6 md:w-2/3">
+                        <h2 class="text-2xl font-bold mb-2">${post.title}</h2>
+                        <p class="text-gray-500 text-sm mb-4">${formatDate(post.createdAt)}</p>
+                        <p class="text-gray-700 mb-4">${post.summary || ''}</p>
+                        <a href="post.html?id=${post.id}" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">Ler mais</a>
+                    </div>
+                </div>
+            `;
+            postsContainer.appendChild(postElement);
+        });
+    }
+
+    // Adicionar função para processar o conteúdo markdown e substituir imagens
+    function processMarkdownContent(content) {
+        // Substituir URLs de imagens no markdown
+        const imgRegex = /!\[(.*?)\]\((.*?)\)/g;
+        const processedContent = content.replace(imgRegex, (match, alt, src) => {
+            const imageSrc = getImageSrc(src);
+            return `![${alt}](${imageSrc})`;
+        });
+        
+        // Retornar o conteúdo processado
+        return marked.parse(processedContent);
+    }
+
+    // Modificar a função de renderização do post para usar processMarkdownContent
+    function renderPost(post) {
+        document.title = `${post.title} - Meu Blog`;
+        
+        const postContainer = document.getElementById('post-container');
+        
+        // Obter o caminho da imagem correto para a capa
+        const coverImageSrc = post.coverImage ? getImageSrc(post.coverImage) : null;
+        
+        postContainer.innerHTML = `
+            <article class="bg-white rounded-lg shadow-md overflow-hidden">
+                ${post.coverImage ? `
+                <div class="h-64 md:h-96 w-full">
+                    <img src="${coverImageSrc}" alt="${post.title}" class="w-full h-full object-cover">
+                </div>` : ''}
+                <div class="p-6">
+                    <h1 class="text-3xl font-bold mb-2">${post.title}</h1>
+                    <p class="text-gray-500 text-sm mb-6">${formatDate(post.createdAt)}</p>
+                    <div class="prose max-w-none">
+                        ${processMarkdownContent(post.content)}
+                    </div>
+                </div>
+            </article>
+        `;
+    }
+
+    // Configurações do blog
+    const blogConfig = {
+        postsPerPage: 6,
+        currentPage: 1,
+        totalPosts: 0
+    };
+
+    // Função para carregar os posts do blog
+    function loadBlogPosts() {
+        // Simulação de requisição a API ou dados do servidor
+        fetch('api/posts.json')  // Ajuste para o endpoint real de sua API
+            .then(response => response.json())
+            .then(data => {
+                blogConfig.totalPosts = data.length;
+                displayFeaturedPosts(data.filter(post => post.featured));
+                displayBlogPosts(data);
+                setupPagination();
+            })
+            .catch(error => {
+                console.error('Erro ao carregar os posts:', error);
+                // Exibir mensagem de erro para o usuário
+                document.getElementById('blog-posts-container').innerHTML = 
+                    '<div class="error-message">Não foi possível carregar os posts. Tente novamente mais tarde.</div>';
+            });
+    }
+
+    // Exibir posts em destaque
+    function displayFeaturedPosts(featuredPosts) {
+        const container = document.getElementById('featured-posts-container');
+        
+        if (!featuredPosts.length) {
+            container.innerHTML = '<p>Não há posts em destaque no momento.</p>';
+            return;
+        }
+        
+        let html = '';
+        
+        featuredPosts.slice(0, 3).forEach(post => {
+            html += `
+                <div class="blog-card featured">
+                    <img src="${post.image}" alt="${post.title}">
+                    <div class="blog-content">
+                        <h3 class="blog-title">${post.title}</h3>
+                        <p class="blog-excerpt">${post.excerpt}</p>
+                        <div class="blog-meta">
+                            <span>${formatDate(post.date)}</span>
+                            <span>${post.author}</span>
+                        </div>
+                        <a href="post.html?id=${post.id}" class="read-more">Ler mais</a>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+
+    // Exibir todos os posts do blog (com paginação)
+    function displayBlogPosts(posts) {
+        const container = document.getElementById('blog-posts-container');
+        const startIndex = (blogConfig.currentPage - 1) * blogConfig.postsPerPage;
+        const endIndex = startIndex + blogConfig.postsPerPage;
+        
+        const postsToDisplay = posts.slice(startIndex, endIndex);
+        
+        if (!postsToDisplay.length) {
+            container.innerHTML = '<p>Não há posts disponíveis no momento.</p>';
+            return;
+        }
+        
+        let html = '';
+        
+        postsToDisplay.forEach(post => {
+            html += `
+                <div class="blog-card">
+                    <img src="${post.image}" alt="${post.title}">
+                    <div class="blog-content">
+                        <h3 class="blog-title">${post.title}</h3>
+                        <p class="blog-excerpt">${post.excerpt}</p>
+                        <div class="blog-meta">
+                            <span>${formatDate(post.date)}</span>
+                            <span>${post.author}</span>
+                        </div>
+                        <a href="post.html?id=${post.id}" class="read-more">Ler mais</a>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+        
+        // Animar o aparecimento dos cards
+        const cards = container.querySelectorAll('.blog-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+    }
+
+    // Configurar a paginação
+    function setupPagination() {
+        const totalPages = Math.ceil(blogConfig.totalPosts / blogConfig.postsPerPage);
+        const paginationContainer = document.getElementById('pagination');
+        
+        if (totalPages <= 1) {
+            paginationContainer.style.display = 'none';
+            return;
+        }
+        
+        let html = '';
+        
+        // Botão anterior
+        html += `<button class="pagination-button prev" ${blogConfig.currentPage === 1 ? 'disabled' : ''}>Anterior</button>`;
+        
+        // Botões de páginas
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 || 
+                i === totalPages || 
+                (i >= blogConfig.currentPage - 1 && i <= blogConfig.currentPage + 1)
+            ) {
+                html += `<button class="pagination-button page ${i === blogConfig.currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            } else if (
+                i === blogConfig.currentPage - 2 || 
+                i === blogConfig.currentPage + 2
+            ) {
+                html += `<span class="pagination-ellipsis">...</span>`;
+            }
+        }
+        
+        // Botão próximo
+        html += `<button class="pagination-button next" ${blogConfig.currentPage === totalPages ? 'disabled' : ''}>Próximo</button>`;
+        
+        paginationContainer.innerHTML = html;
+        
+        // Adicionar eventos aos botões de paginação
+        paginationContainer.querySelectorAll('.pagination-button.page').forEach(button => {
+            button.addEventListener('click', () => {
+                blogConfig.currentPage = parseInt(button.dataset.page);
+                loadBlogPosts();
+                window.scrollTo({
+                    top: document.querySelector('.blog-listing').offsetTop - 100,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Evento para botão anterior
+        const prevButton = paginationContainer.querySelector('.pagination-button.prev');
+        if (prevButton) {
+            prevButton.addEventListener('click', () => {
+                if (blogConfig.currentPage > 1) {
+                    blogConfig.currentPage--;
+                    loadBlogPosts();
+                    window.scrollTo({
+                        top: document.querySelector('.blog-listing').offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        }
+        
+        // Evento para botão próximo
+        const nextButton = paginationContainer.querySelector('.pagination-button.next');
+        if (nextButton) {
+            nextButton.addEventListener('click', () => {
+                if (blogConfig.currentPage < totalPages) {
+                    blogConfig.currentPage++;
+                    loadBlogPosts();
+                    window.scrollTo({
+                        top: document.querySelector('.blog-listing').offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        }
+    }
+
+    // Função auxiliar para formatar datas
+    function formatDate(dateString) {
+        const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        return new Date(dateString).toLocaleDateString('pt-BR', options);
     }
 }); 

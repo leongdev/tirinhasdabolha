@@ -1,112 +1,170 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificar autenticação antes de tudo
-    if (!isAuthenticated()) {
-        window.location.href = 'login.html';
-        return;
+    // Verificar autenticação apenas se estivermos na página admin.html
+    if (window.location.pathname.includes('admin.html')) {
+        // Verificar se o usuário está logado
+        const isAuthenticated = localStorage.getItem('authenticated') === 'true';
+        
+        if (!isAuthenticated) {
+            // Redirecionar para login apenas se não estiver autenticado
+            // e adicionar um parâmetro para evitar loops
+            if (!window.location.href.includes('redirected=true')) {
+                window.location.href = 'login.html?redirected=true&from=admin';
+            }
+            return;
+        }
+        
+        // Inicializar a interface admin apenas se autenticado
+        initAdminInterface();
     }
-    
-    // Adicionar botão de logout ao cabeçalho
-    const nav = document.querySelector('header nav ul');
-    const logoutItem = document.createElement('li');
-    logoutItem.innerHTML = `
-        <button id="logout-btn" class="text-gray-600 hover:text-red-600 transition-colors">Logout</button>
-    `;
-    nav.appendChild(logoutItem);
-    
-    // Adicionar evento ao botão de logout
-    document.getElementById('logout-btn').addEventListener('click', function() {
-        localStorage.removeItem('blog-auth');
-        window.location.href = 'login.html';
+});
+
+function initAdminInterface() {
+    // Inicializar editor Quill
+    const quill = new Quill('#editor-container', {
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link'],
+                ['clean']
+            ]
+        },
+        placeholder: 'Escreva seu conteúdo aqui...',
+        theme: 'snow'
     });
     
-    // Variáveis globais
-    let editor;
+    // Variáveis para gerenciamento de estado
     let currentPostId = null;
+    let currentMode = 'create';
     
-    // Inicializar o editor de Markdown
-    initEditor();
+    // Navegação entre seções
+    const navigationLinks = document.querySelectorAll('.admin-menu a');
+    const sections = document.querySelectorAll('.admin-section');
     
-    // Carregar os posts existentes
-    loadAdminPosts();
-    
-    // Adicionar event listeners
-    document.getElementById('new-post-btn').addEventListener('click', showPostEditor);
-    document.getElementById('save-post-btn').addEventListener('click', savePost);
-    document.getElementById('cancel-post-btn').addEventListener('click', hidePostEditor);
-    document.getElementById('export-btn').addEventListener('click', exportPosts);
-    document.getElementById('import-file').addEventListener('change', importPosts);
-    document.getElementById('clear-btn').addEventListener('click', clearAllPosts);
-    
-    // Inicializar o editor de Markdown
-    function initEditor() {
-        editor = new EasyMDE({
-            element: document.getElementById('post-content'),
-            autofocus: true,
-            spellChecker: false,
-            placeholder: "Escreva seu post usando Markdown...",
-            status: ['lines', 'words', 'cursor'],
-            toolbar: [
-                'bold', 'italic', 'heading', '|',
-                'quote', 'unordered-list', 'ordered-list', '|',
-                'link', 'image', '|',
-                'preview', 'side-by-side', 'fullscreen', '|',
-                'guide'
-            ],
-            uploadImage: true,
-            imageUploadFunction: function(file, onSuccess, onError) {
-                // Exemplo: converter a imagem para base64 e inserir
-                const reader = new FileReader();
-                reader.onload = function() {
-                    onSuccess(reader.result);
-                };
-                reader.onerror = function() {
-                    onError('Erro ao carregar a imagem');
-                };
-                reader.readAsDataURL(file);
+    navigationLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetSection = this.getAttribute('data-section');
+            
+            // Atualizar links ativos
+            navigationLinks.forEach(item => item.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Mostrar seção correta
+            sections.forEach(section => {
+                section.classList.remove('active');
+                if (section.id === targetSection + '-section') {
+                    section.classList.add('active');
+                }
+            });
+            
+            // Carregar dados específicos da seção
+            if (targetSection === 'posts') {
+                loadPosts();
+            } else if (targetSection === 'stats') {
+                loadStats();
             }
         });
-    }
+    });
     
-    // Mostrar o editor de posts
-    function showPostEditor() {
-        // Resetar o editor
-        currentPostId = null;
-        document.getElementById('post-title').value = '';
-        document.getElementById('post-cover').value = '';
-        document.getElementById('post-summary').value = '';
-        editor.value('');
+    // Manipulação de upload de imagem de capa
+    const postImageInput = document.getElementById('post-image');
+    const imagePreview = document.getElementById('image-preview');
+    
+    postImageInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            // Usar o ImageUploader para processar a imagem
+            window.imageUploader.uploadImage(file)
+                .then(result => {
+                    // Salvar o ID da imagem no data do preview
+                    imagePreview.dataset.imageId = result.id;
+                    
+                    // Atualizar preview
+                    imagePreview.style.backgroundImage = `url(${result.url})`;
+                    imagePreview.innerHTML = '';
+                    imagePreview.classList.add('has-image');
+                })
+                .catch(error => {
+                    alert('Erro ao carregar imagem: ' + error.message);
+                });
+        }
+    });
+    
+    // Inserir imagem no conteúdo
+    const insertImageBtn = document.getElementById('insert-image-btn');
+    const contentImageInput = document.getElementById('content-image');
+    
+    insertImageBtn.addEventListener('click', function() {
+        contentImageInput.click();
+    });
+    
+    contentImageInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            window.imageUploader.uploadImage(file)
+                .then(result => {
+                    // Inserir imagem no editor
+                    const range = quill.getSelection(true);
+                    quill.insertEmbed(range.index, 'image', result.url);
+                    quill.setSelection(range.index + 1);
+                })
+                .catch(error => {
+                    alert('Erro ao inserir imagem: ' + error.message);
+                });
+        }
+    });
+    
+    // Formulário de criação/edição de post
+    const postForm = document.getElementById('post-form');
+    
+    postForm.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        // Mostrar o editor
-        document.getElementById('post-editor').classList.remove('hidden');
-        
-        // Rolar até o editor
-        document.getElementById('post-editor').scrollIntoView({ behavior: 'smooth' });
-    }
-    
-    // Esconder o editor de posts
-    function hidePostEditor() {
-        document.getElementById('post-editor').classList.add('hidden');
-    }
-    
-    // Salvar um post
-    function savePost() {
+        // Obter valores do formulário
         const title = document.getElementById('post-title').value.trim();
-        const cover = document.getElementById('post-cover').value.trim();
-        const summary = document.getElementById('post-summary').value.trim();
-        const content = editor.value().trim();
+        const excerpt = document.getElementById('post-excerpt').value.trim();
+        const imageId = imagePreview.dataset.imageId || null;
+        const content = quill.root.innerHTML;
+        const isFeatured = document.getElementById('post-featured').checked;
         
         // Validação básica
         if (!title) {
-            alert('Por favor, insira um título para o post.');
+            alert('O título é obrigatório');
             return;
         }
         
-        if (!content) {
-            alert('Por favor, escreva algum conteúdo para o post.');
-            return;
-        }
+        // Criar objeto do post
+        const post = {
+            id: currentPostId || 'post_' + new Date().getTime(),
+            title,
+            excerpt,
+            imageId,
+            content,
+            featured: isFeatured,
+            date: new Date().toISOString(),
+            lastModified: new Date().toISOString()
+        };
         
-        // Carregar posts existentes
+        // Salvar post
+        savePost(post);
+        
+        // Resetar formulário e estado
+        resetForm();
+        
+        // Exibir feedback
+        alert(currentMode === 'create' ? 'Post criado com sucesso!' : 'Post atualizado com sucesso!');
+        
+        // Redirecionar para a lista de posts
+        document.querySelector('[data-section="posts"]').click();
+    });
+    
+    // Função para salvar post
+    function savePost(post) {
+        // Obter posts existentes
         let posts = [];
         try {
             const storedPosts = localStorage.getItem('blog-posts');
@@ -117,53 +175,36 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Erro ao carregar posts:', error);
         }
         
-        // Criar ou atualizar o post
-        if (currentPostId) {
+        // Verificar se é edição ou criação
+        const existingPostIndex = posts.findIndex(p => p.id === post.id);
+        
+        if (existingPostIndex !== -1) {
             // Atualizar post existente
-            const index = posts.findIndex(post => post.id === currentPostId);
-            
-            if (index !== -1) {
-                posts[index] = {
-                    ...posts[index],
-                    title,
-                    cover,
-                    summary,
-                    content,
-                    updated: new Date().toISOString()
-                };
-            }
+            posts[existingPostIndex] = post;
         } else {
-            // Criar novo post
-            const newPost = {
-                id: Date.now().toString(),
-                title,
-                cover,
-                summary,
-                content,
-                date: new Date().toISOString(),
-                updated: null
-            };
-            
-            posts.push(newPost);
+            // Adicionar novo post
+            posts.push(post);
         }
         
-        // Salvar os posts
-        try {
-            localStorage.setItem('blog-posts', JSON.stringify(posts));
-            hidePostEditor();
-            loadAdminPosts();
-            
-            // Feedback
-            alert(`Post ${currentPostId ? 'atualizado' : 'criado'} com sucesso!`);
-        } catch (error) {
-            console.error('Erro ao salvar post:', error);
-            alert('Erro ao salvar o post. Consulte o console para mais detalhes.');
-        }
+        // Salvar no localStorage
+        localStorage.setItem('blog-posts', JSON.stringify(posts));
     }
     
-    // Carregar posts na área admin
-    function loadAdminPosts() {
-        const postsContainer = document.getElementById('admin-posts-container');
+    // Função para resetar formulário
+    function resetForm() {
+        postForm.reset();
+        quill.root.innerHTML = '';
+        imagePreview.style.backgroundImage = '';
+        imagePreview.innerHTML = '<span>Nenhuma imagem selecionada</span>';
+        imagePreview.classList.remove('has-image');
+        delete imagePreview.dataset.imageId;
+        currentPostId = null;
+        currentMode = 'create';
+    }
+    
+    // Carregar lista de posts
+    function loadPosts() {
+        const postsList = document.getElementById('posts-list');
         let posts = [];
         
         try {
@@ -175,204 +216,247 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Erro ao carregar posts:', error);
         }
         
-        // Limpar o container
-        postsContainer.innerHTML = '';
+        // Limpar lista
+        postsList.innerHTML = '';
         
         if (posts.length === 0) {
-            postsContainer.innerHTML = `
-                <p class="py-4 text-gray-500">Nenhum post encontrado. Clique em "Novo Post" para começar.</p>
+            postsList.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center">Nenhum post encontrado</td>
+                </tr>
             `;
             return;
         }
         
-        // Ordenar posts por data (mais recentes primeiro)
+        // Ordenar posts (mais recentes primeiro)
         posts.sort((a, b) => new Date(b.date) - new Date(a.date));
         
-        // Mostrar os posts
+        // Mostrar posts na tabela
         posts.forEach(post => {
-            const postDate = new Date(post.date).toLocaleDateString('pt-BR');
-            const postItem = document.createElement('div');
-            postItem.className = 'py-4';
-            postItem.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h4 class="text-lg font-semibold">${post.title}</h4>
-                        <p class="text-sm text-gray-500">Publicado em ${postDate}</p>
+            const row = document.createElement('tr');
+            
+            const formattedDate = new Date(post.date).toLocaleDateString('pt-BR');
+            
+            row.innerHTML = `
+                <td>${post.title}</td>
+                <td>${formattedDate}</td>
+                <td>${post.featured ? '<span class="featured-badge">Destaque</span>' : 'Regular'}</td>
+                <td>
+                    <div class="post-actions">
+                        <button class="edit-btn" data-id="${post.id}">Editar</button>
+                        <button class="delete-btn" data-id="${post.id}">Excluir</button>
                     </div>
-                    <div class="flex space-x-2">
-                        <button class="edit-post-btn bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors" data-post-id="${post.id}">
-                            Editar
-                        </button>
-                        <button class="delete-post-btn bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors" data-post-id="${post.id}">
-                            Excluir
-                        </button>
-                    </div>
-                </div>
+                </td>
             `;
             
-            postsContainer.appendChild(postItem);
-            
-            // Adicionar eventos aos botões
-            postItem.querySelector('.edit-post-btn').addEventListener('click', function() {
-                editPost(post.id);
+            postsList.appendChild(row);
+        });
+        
+        // Adicionar eventos para os botões
+        postsList.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                editPost(this.getAttribute('data-id'));
             });
-            
-            postItem.querySelector('.delete-post-btn').addEventListener('click', function() {
-                deletePost(post.id);
+        });
+        
+        postsList.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                deletePost(this.getAttribute('data-id'));
             });
         });
     }
     
-    // Editar um post existente
+    // Função para editar post
     function editPost(postId) {
+        let posts = [];
         try {
             const storedPosts = localStorage.getItem('blog-posts');
             if (storedPosts) {
-                const posts = JSON.parse(storedPosts);
-                const post = posts.find(p => p.id === postId);
-                
-                if (post) {
-                    // Preencher o editor com os dados do post
-                    currentPostId = postId;
-                    document.getElementById('post-title').value = post.title;
-                    document.getElementById('post-cover').value = post.cover || '';
-                    document.getElementById('post-summary').value = post.summary || '';
-                    editor.value(post.content);
-                    
-                    // Mostrar o editor
-                    document.getElementById('post-editor').classList.remove('hidden');
-                    
-                    // Rolar até o editor
-                    document.getElementById('post-editor').scrollIntoView({ behavior: 'smooth' });
-                }
+                posts = JSON.parse(storedPosts);
             }
         } catch (error) {
-            console.error('Erro ao editar post:', error);
+            console.error('Erro ao carregar posts:', error);
         }
+        
+        const post = posts.find(p => p.id === postId);
+        
+        if (!post) {
+            alert('Post não encontrado');
+            return;
+        }
+        
+        // Mudar para a seção de formulário
+        document.querySelector('[data-section="new-post"]').click();
+        
+        // Preencher formulário
+        document.getElementById('post-title').value = post.title;
+        document.getElementById('post-excerpt').value = post.excerpt || '';
+        document.getElementById('post-featured').checked = post.featured || false;
+        
+        // Preencher editor
+        quill.root.innerHTML = post.content;
+        
+        // Configurar imagem se existir
+        if (post.imageId) {
+            const imageUrl = window.imageUploader.getImageUrl(post.imageId);
+            if (imageUrl) {
+                imagePreview.style.backgroundImage = `url(${imageUrl})`;
+                imagePreview.innerHTML = '';
+                imagePreview.classList.add('has-image');
+                imagePreview.dataset.imageId = post.imageId;
+            }
+        }
+        
+        // Atualizar estado
+        currentPostId = postId;
+        currentMode = 'edit';
     }
     
-    // Excluir um post
+    // Função para excluir post
     function deletePost(postId) {
-        if (!confirm('Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita.')) {
+        if (!confirm('Tem certeza que deseja excluir este post?')) {
             return;
         }
         
+        let posts = [];
         try {
             const storedPosts = localStorage.getItem('blog-posts');
             if (storedPosts) {
-                let posts = JSON.parse(storedPosts);
-                posts = posts.filter(post => post.id !== postId);
-                
-                localStorage.setItem('blog-posts', JSON.stringify(posts));
-                loadAdminPosts();
-                
-                // Feedback
-                alert('Post excluído com sucesso!');
+                posts = JSON.parse(storedPosts);
             }
         } catch (error) {
-            console.error('Erro ao excluir post:', error);
+            console.error('Erro ao carregar posts:', error);
+        }
+        
+        // Filtrar posts para remover o selecionado
+        const updatedPosts = posts.filter(p => p.id !== postId);
+        
+        // Salvar no localStorage
+        localStorage.setItem('blog-posts', JSON.stringify(updatedPosts));
+        
+        // Atualizar lista
+        loadPosts();
+        
+        // Atualizar estatísticas
+        if (document.getElementById('stats-section').classList.contains('active')) {
+            loadStats();
         }
     }
     
-    // Exportar todos os posts
-    function exportPosts() {
+    // Carregar estatísticas
+    function loadStats() {
+        let posts = [];
         try {
             const storedPosts = localStorage.getItem('blog-posts');
-            if (!storedPosts || JSON.parse(storedPosts).length === 0) {
-                alert('Não há posts para exportar.');
-                return;
+            if (storedPosts) {
+                posts = JSON.parse(storedPosts);
             }
-            
-            // Criar arquivo para download
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(storedPosts);
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "blog-posts-" + new Date().toISOString().split('T')[0] + ".json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-            
-            // Feedback
-            alert('Posts exportados com sucesso!');
         } catch (error) {
-            console.error('Erro ao exportar posts:', error);
-            alert('Erro ao exportar posts. Consulte o console para mais detalhes.');
+            console.error('Erro ao carregar posts:', error);
         }
+        
+        // Total de posts
+        document.getElementById('total-posts').textContent = posts.length;
+        
+        // Posts em destaque
+        const featuredCount = posts.filter(p => p.featured).length;
+        document.getElementById('featured-posts').textContent = featuredCount;
+        
+        // Data do último post
+        let lastPostDate = '-';
+        if (posts.length > 0) {
+            posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+            lastPostDate = new Date(posts[0].date).toLocaleDateString('pt-BR');
+        }
+        document.getElementById('last-post-date').textContent = lastPostDate;
     }
     
-    // Importar posts
-    function importPosts(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+    // Botão de pré-visualização
+    document.getElementById('preview-btn').addEventListener('click', function() {
+        const title = document.getElementById('post-title').value.trim();
+        const content = quill.root.innerHTML;
         
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            try {
-                const importedPosts = JSON.parse(e.target.result);
-                
-                if (!Array.isArray(importedPosts)) {
-                    throw new Error('Formato de arquivo inválido.');
-                }
-                
-                if (!confirm(`Tem certeza que deseja importar ${importedPosts.length} posts? Isso substituirá todos os posts existentes.`)) {
-                    return;
-                }
-                
-                localStorage.setItem('blog-posts', JSON.stringify(importedPosts));
-                loadAdminPosts();
-                
-                // Resetar o input de arquivo
-                document.getElementById('import-file').value = '';
-                
-                // Feedback
-                alert('Posts importados com sucesso!');
-            } catch (error) {
-                console.error('Erro ao importar posts:', error);
-                alert('Erro ao importar posts. Verifique se o arquivo está no formato correto.');
-            }
-        };
-        
-        reader.readAsText(file);
-    }
-    
-    // Limpar todos os posts
-    function clearAllPosts() {
-        if (!confirm('ATENÇÃO: Tem certeza que deseja excluir TODOS os posts? Esta ação não pode ser desfeita.')) {
+        if (!title || !content) {
+            alert('Preencha pelo menos o título e o conteúdo para pré-visualizar');
             return;
         }
         
-        if (!confirm('Esta ação excluirá permanentemente todos os seus posts. Digite CONFIRMAR para prosseguir.')) {
-            return;
-        }
+        // Criar janela de pré-visualização
+        const previewWindow = window.open('', '_blank');
         
-        try {
-            localStorage.removeItem('blog-posts');
-            loadAdminPosts();
-            
-            // Feedback
-            alert('Todos os posts foram excluídos com sucesso!');
-        } catch (error) {
-            console.error('Erro ao limpar posts:', error);
-            alert('Erro ao limpar posts. Consulte o console para mais detalhes.');
-        }
+        // Estilo e conteúdo
+        previewWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Pré-visualização: ${title}</title>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+                <style>
+                    body {
+                        font-family: 'Roboto', sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    h1 {
+                        font-size: 2rem;
+                        margin-bottom: 1rem;
+                    }
+                    .content img {
+                        max-width: 100%;
+                        height: auto;
+                        border-radius: 6px;
+                        margin: 1rem 0;
+                    }
+                    .preview-info {
+                        background-color: #f0f7ff;
+                        padding: 10px;
+                        border-radius: 6px;
+                        margin-bottom: 20px;
+                        border-left: 4px solid #0066cc;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="preview-info">
+                    <p><strong>PRÉ-VISUALIZAÇÃO</strong> - Este é apenas um preview e não representa o layout final do post publicado.</p>
+                </div>
+                <h1>${title}</h1>
+                <div class="content">
+                    ${content}
+                </div>
+            </body>
+            </html>
+        `);
+    });
+    
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.removeItem('authenticated');
+        window.location.href = 'login.html';
+    });
+    
+    // Inicializar a página carregando a lista de posts
+    loadPosts();
+}
+
+function setupEventListeners() {
+    // Evento para logout
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('authenticated');
+            window.location.href = 'login.html';
+        });
     }
     
-    // Função para verificar autenticação
-    function isAuthenticated() {
-        try {
-            const auth = JSON.parse(localStorage.getItem('blog-auth'));
-            if (!auth) return false;
-            
-            // Verificar se a sessão expirou
-            if (Date.now() > auth.expiry) {
-                localStorage.removeItem('blog-auth');
-                return false;
-            }
-            
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }
-}); 
+    // Outros event listeners globais podem ser adicionados aqui
+}
+
+setupEventListeners(); 

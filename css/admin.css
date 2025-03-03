@@ -1,0 +1,387 @@
+/* Estilos para o Painel Administrativo */
+.admin-page {
+    background-color: #f5f7fa;
+    padding-bottom: 70px;
+}
+
+.admin-header {
+    background-color: #1a1a2e;
+}
+
+.admin-header .site-title {
+    color: #fff;
+}
+
+.admin-header .main-navigation a {
+    color: #fff;
+}
+
+.admin-header .main-navigation a::after {
+    background-color: #38b6ff;
+}
+
+.admin-main {
+    padding: 40px 0;
+}
+
+.admin-panel {
+    display: flex;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.admin-sidebar {
+    width: 250px;
+    background-color: #f1f5f9;
+    padding: 30px 0;
+    border-right: 1px solid #e2e8f0;
+}
+
+.admin-sidebar h2 {
+    padding: 0 20px 20px;
+    margin: 0;
+    font-size: 1.2rem;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-menu li a {
+    display: block;
+    padding: 12px 20px;
+    color: #334155;
+    text-decoration: none;
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+}
+
+.admin-menu li a:hover, 
+.admin-menu li a.active {
+    background-color: #e0ebff;
+    color: #0066cc;
+    border-left-color: #0066cc;
+}
+
+.admin-content {
+    flex: 1;
+    padding: 30px;
+}
+
+.admin-section {
+    display: none;
+}
+
+.admin-section.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.section-title {
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    color: #1e293b;
+}
+
+/* Formulário de Post */
+.post-form {
+    max-width: 800px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #334155;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.95rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    border-color: #0066cc;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+/* Estilo para upload de imagens */
+.image-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.image-preview {
+    width: 100%;
+    height: 200px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    background-size: cover;
+    background-position: center;
+    transition: all 0.3s;
+}
+
+.image-preview.has-image {
+    border: none;
+    color: transparent;
+}
+
+.image-upload-btn {
+    display: inline-block;
+    padding: 10px 16px;
+    background-color: #0066cc;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.image-upload-btn:hover {
+    background-color: #0052a3;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+/* Editor de conteúdo */
+.editor-container {
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    height: 400px;
+}
+
+.ql-toolbar {
+    background-color: #f1f5f9;
+    border-bottom: 1px solid #cbd5e1;
+}
+
+.editor-tools {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.tool-btn {
+    padding: 8px 12px;
+    background-color: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tool-btn:hover {
+    background-color: #e2e8f0;
+}
+
+/* Botões de ação */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.save-btn, .preview-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.save-btn {
+    background-color: #0066cc;
+    color: white;
+}
+
+.save-btn:hover {
+    background-color: #0052a3;
+}
+
+.preview-btn {
+    background-color: white;
+    color: #0066cc;
+    border: 1px solid #0066cc;
+}
+
+.preview-btn:hover {
+    background-color: #f0f7ff;
+}
+
+/* Tabela de posts */
+.search-bar {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px 0 0 6px;
+    font-size: 0.95rem;
+}
+
+.admin-btn {
+    padding: 10px 20px;
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.admin-btn:hover {
+    background-color: #0052a3;
+}
+
+.posts-table-container {
+    overflow-x: auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.posts-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.posts-table th, 
+.posts-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.posts-table th {
+    background-color: #f8fafc;
+    font-weight: 600;
+    color: #334155;
+}
+
+.posts-table tr:hover {
+    background-color: #f1f5f9;
+}
+
+.post-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.post-actions button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.edit-btn {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #d97706;
+}
+
+.delete-btn {
+    background-color: #ef4444;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #dc2626;
+}
+
+/* Estilo para estatísticas */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.stats-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.stats-card h3 {
+    margin-top: 0;
+    color: #64748b;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.stats-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0066cc;
+    margin: 10px 0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .admin-panel {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 15px 0;
+    }
+    
+    .admin-menu li a {
+        padding: 10px 15px;
+    }
+    
+    .admin-content {
+        padding: 20px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .save-btn, .preview-btn {
+        width: 100%;
+    }
+} 
