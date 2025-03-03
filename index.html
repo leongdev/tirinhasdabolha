@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/custom.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-indigo-600">Meu Blog</h1>
+                <nav>
+                    <ul class="flex space-x-6">
+                        <li><a href="index.html" class="text-indigo-600 font-medium">Feed</a></li>
+                        <li><a href="admin.html" class="text-gray-600 hover:text-indigo-600 transition-colors">Admin</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">Posts Recentes</h2>
+        </div>
+
+        <div id="posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Os posts serão inseridos aqui dinamicamente -->
+            <div class="bg-white p-4 rounded-lg shadow-md flex items-center justify-center h-40">
+                <p class="text-gray-500">Carregando posts...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <p class="text-center">&copy; 2023 Meu Blog. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/blog.js"></script>
+</body>
+</html> 
