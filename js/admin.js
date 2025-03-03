@@ -163,31 +163,54 @@ function initAdminInterface() {
     });
     
     // Função para salvar post
-    function savePost(post) {
-        // Obter posts existentes
+    function savePost(postData) {
+        // Get existing posts
         let posts = [];
-        try {
-            const storedPosts = localStorage.getItem('blog-posts');
-            if (storedPosts) {
-                posts = JSON.parse(storedPosts);
+        const existingPosts = localStorage.getItem('blogPosts');
+        
+        if (existingPosts) {
+            try {
+                posts = JSON.parse(existingPosts);
+                if (!Array.isArray(posts)) {
+                    console.warn("Existing posts is not an array. Creating new array.");
+                    posts = [];
+                }
+            } catch (e) {
+                console.error("Error parsing existing posts:", e);
             }
-        } catch (error) {
-            console.error('Erro ao carregar posts:', error);
         }
         
-        // Verificar se é edição ou criação
-        const existingPostIndex = posts.findIndex(p => p.id === post.id);
+        // Ensure post has required fields
+        if (!postData.id) {
+            postData.id = Date.now().toString();
+        }
         
-        if (existingPostIndex !== -1) {
-            // Atualizar post existente
-            posts[existingPostIndex] = post;
+        if (!postData.date) {
+            postData.date = new Date().toISOString();
+        }
+        
+        // Check if post exists or is new
+        const existingIndex = posts.findIndex(p => p.id === postData.id);
+        
+        if (existingIndex >= 0) {
+            // Update existing post
+            posts[existingIndex] = {...posts[existingIndex], ...postData};
+            console.log(`Updated existing post with ID ${postData.id}`);
         } else {
-            // Adicionar novo post
-            posts.push(post);
+            // Add new post
+            posts.push(postData);
+            console.log(`Added new post with ID ${postData.id}`);
         }
         
-        // Salvar no localStorage
-        localStorage.setItem('blog-posts', JSON.stringify(posts));
+        // Save back to localStorage
+        try {
+            localStorage.setItem('blogPosts', JSON.stringify(posts));
+            console.log(`Successfully saved ${posts.length} posts`);
+            return true;
+        } catch (error) {
+            console.error('Error saving posts:', error);
+            return false;
+        }
     }
     
     // Função para resetar formulário
@@ -208,7 +231,7 @@ function initAdminInterface() {
         let posts = [];
         
         try {
-            const storedPosts = localStorage.getItem('blog-posts');
+            const storedPosts = localStorage.getItem('blogPosts');
             if (storedPosts) {
                 posts = JSON.parse(storedPosts);
             }
@@ -270,7 +293,7 @@ function initAdminInterface() {
     function editPost(postId) {
         let posts = [];
         try {
-            const storedPosts = localStorage.getItem('blog-posts');
+            const storedPosts = localStorage.getItem('blogPosts');
             if (storedPosts) {
                 posts = JSON.parse(storedPosts);
             }
@@ -320,7 +343,7 @@ function initAdminInterface() {
         
         let posts = [];
         try {
-            const storedPosts = localStorage.getItem('blog-posts');
+            const storedPosts = localStorage.getItem('blogPosts');
             if (storedPosts) {
                 posts = JSON.parse(storedPosts);
             }
@@ -332,7 +355,7 @@ function initAdminInterface() {
         const updatedPosts = posts.filter(p => p.id !== postId);
         
         // Salvar no localStorage
-        localStorage.setItem('blog-posts', JSON.stringify(updatedPosts));
+        localStorage.setItem('blogPosts', JSON.stringify(updatedPosts));
         
         // Atualizar lista
         loadPosts();
@@ -347,7 +370,7 @@ function initAdminInterface() {
     function loadStats() {
         let posts = [];
         try {
-            const storedPosts = localStorage.getItem('blog-posts');
+            const storedPosts = localStorage.getItem('blogPosts');
             if (storedPosts) {
                 posts = JSON.parse(storedPosts);
             }

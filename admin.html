@@ -154,7 +154,22 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.1/dist/quill.min.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/imageUpload.js"></script>
     <script src="js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Protege a rota - redireciona se não autenticado
+            if (!protectAdminRoute()) return;
+            
+            // Configura logout
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            
+            // Inicialização da página admin já presente em admin.js
+        });
+    </script>
 </body>
 </html> 

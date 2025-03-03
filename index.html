@@ -3,77 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog - Home</title>
+    <title>Meu Blog</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/custom.css">
+    <!-- Ensure cache-busting by adding a query parameter -->
+    <script src="js/auth.js?v=1.0.1"></script>
+    <script src="js/blog.js?v=1.0.1"></script>
 </head>
 <body>
     <!-- Header -->
     <header class="site-header">
         <div class="container">
             <div class="header-content">
-                <h1 class="site-title">Blog</h1>
+                <h1 class="site-title">Meu Blog</h1>
                 <nav class="main-navigation">
                     <ul>
-                        <li><a href="index.html" class="active">Home</a></li>
-                        <li><a href="admin.html" class="admin-link">Área Admin</a></li>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="admin.html" class="admin-link" style="display: none;">Admin</a></li>
+                        <li><a href="#" id="logout-btn" class="admin-link" style="display: none;">Logout</a></li>
+                        <li><a href="login.html" id="login-link">Login</a></li>
                     </ul>
                 </nav>
             </div>
         </div>
     </header>
 
-    <!-- Destaque Principal -->
-    <section class="hero-section">
-        <div class="container">
-            <div class="hero-content">
-                <h2>Bem-vindo ao nosso blog</h2>
-                <p>Explore nossos artigos sobre diversos temas interessantes.</p>
-                <a href="#featured-posts" class="hero-button">Ver posts em destaque</a>
+    <!-- Main Content -->
+    <main class="site-main">
+        <!-- Posts em Destaque -->
+        <section class="featured-posts">
+            <div class="container">
+                <h2 class="post-section-title">Posts em Destaque</h2>
+                <div class="horizontal-scroll-container">
+                    <div class="posts-row" id="featured-posts-container">
+                        <!-- Posts em destaque serão carregados aqui via JavaScript -->
+                        <div class="loading">Carregando posts em destaque...</div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Posts em Destaque -->
-    <section id="featured-posts" class="featured-section">
-        <div class="container">
-            <h2 class="section-title">Posts em Destaque</h2>
-            <div class="blog-container" id="featured-posts-container">
-                <!-- Posts serão carregados via JavaScript -->
+        <!-- Todos os Posts -->
+        <section class="all-posts">
+            <div class="container">
+                <h2 class="post-section-title">Posts Recentes</h2>
+                <div class="horizontal-scroll-container">
+                    <div class="posts-row" id="blog-posts-container">
+                        <!-- Posts serão carregados aqui via JavaScript -->
+                        <div class="loading">Carregando posts...</div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Listagem de Posts -->
-    <section class="blog-listing">
-        <div class="container">
-            <h2 class="section-title">Últimos Posts</h2>
-            <div class="blog-container" id="blog-posts-container">
-                <!-- Posts serão carregados via JavaScript -->
-            </div>
-            <div class="pagination" id="pagination">
-                <!-- Paginação será carregada via JavaScript -->
-            </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">
-                    <p>&copy; 2024 Blog. Todos os direitos reservados.</p>
-                </div>
-                <div class="footer-links">
-                    <a href="#">Política de Privacidade</a>
-                    <a href="#">Termos de Uso</a>
-                    <a href="#">Contato</a>
+                    <p>&copy; 2024 Meu Blog. Todos os direitos reservados.</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="js/blog.js"></script>
+    <script>
+        // This inline script ensures everything loads properly
+        console.log('Index page loaded');
+        
+        // Function to init the blog
+        function initBlog() {
+            console.log('Initializing blog...');
+            
+            // Update auth UI if function exists
+            if (typeof updateAuthUI === 'function') {
+                console.log('Updating auth UI...');
+                updateAuthUI();
+            } else {
+                console.warn('updateAuthUI function not found');
+            }
+            
+            // Set up logout if the button exists
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn && typeof logout === 'function') {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logout();
+                });
+            }
+            
+            // Check which loading function is available and call it
+            if (typeof loadPosts === 'function') {
+                console.log('Calling loadPosts function...');
+                loadPosts();
+            } else {
+                console.error('No post loading function found. Please check browser console.');
+                alert('Erro ao carregar posts. Por favor, limpe o cache do navegador e tente novamente.');
+            }
+        }
+        
+        // Call init when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initBlog);
+        } else {
+            initBlog();
+        }
+    </script>
 </body>
 </html> 
