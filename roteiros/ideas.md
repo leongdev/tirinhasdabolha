@@ -1,0 +1,12 @@
+- uma ritinha sobre entrevista de emprego com dev que aprendeu a programar com AI
+- (tenho uma ideia milionária) o cliente que quer um site igual ao uber e vai pagar um pastel com coxinha
+- O QA abre um ticket com "tá estranho". O dev surta pedindo detalhes. Plot twist: O QA só não gostou do ícone do app.
+- O dev otimiza uma query que levava 10 segundos pra 1ms. Plot twist: O PM acha que "não mudou nada".
+- O PM pede uma feature "pra ontem". O dev entrega com bugs. Plot twist: O cliente ama os bugs e pede mais. Bug que virou feature
+- "Essa reunião poderia ser um email" O chefe fala "sem reuniões essa semana". O dev comemora. Plot twist: Substituem por 20 e-mails confusos por dia.
+- O dev cria uma automação pra evitar trabalho manual. Plot twist:A automação leva uma seman apra finalizar e o processo manual leva 5 minutos.
+- O dev resolve um bug crítico e salva o dia. Plot twist: O PM leva o crédito na frente do cliente.
+- O CEO aparece com "vamos usar quantum computing pra e-mails". O dev tenta explicar física básica. Plot twist: O CEO já contratou um coach quantico pra escrever os emails.
+- O chefe fala "seja proativo como se o negócio fosse seu". O dev sugere melhorias. Plot twist: O chefe rejeita tudo porque "não veio dele".
+- O dev pede aumento e o chefe responde "dinheiro não é tudo, foque na experiência". Plot twist: O chefe posta no LinkedIn que "liderança é recompensar o time" com uma foto de um iate.
+- O chefe exige "comprometimento e confiança" mas o dev encontra vaga pra o trabalho dele no linkedin (a empresa vai substituir ele)
