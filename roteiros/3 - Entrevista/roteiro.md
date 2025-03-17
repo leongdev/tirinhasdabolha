@@ -1,26 +1,30 @@
-# A Entrevista
+# Entrevista de Emprego com Dev AI
 
 ## Quadro 1
-*Cena: Sala de entrevista*
+*Cena: Sala de entrevista com recrutador e candidato*
 
-Recrutador: Então, me fale sobre sua experiência com testes.
-Dev: Ah, eu sou muito detalhista! Testo tudo minuciosamente.
+Recrutador: Então, me conta sobre sua experiência com programação.
+
+Dev: Fiz um curso de virei senior fullstack em 6 meses!
 
 ## Quadro 2
-*Cena: Recrutador interessado*
+*Cena: Recrutador olhando curioso*
 
-Recrutador: E como você lida com bugs em produção?
-Dev: Sempre faço rollback imediato e investigo a fundo!
+Recrutador: Interessante... E como você resolve problemas complexos?
+
+Dev: Ué, como todo mundo... deixa eu mostrar!
 
 ## Quadro 3
-*Cena: Dev empolgado*
+*Cena: Dev demonstrando entusiasmo uma tela do chat GPT*
 
-Dev: Inclusive tenho certificação em...
-*Notificação no celular do dev*
+Dev: Só abrir esse site e BAAAMMM!
+
+Recutador: Ué mas você não pode resolver tudo com IA!
+
+Dev: Ééé? E como você resolve então ?
+
+Recutador: Bem...(Recrutador desconfiado)
 
 ## Quadro 4
-*Cena: Plot twist*
-
-*App em produção do dev: "Erro fatal - App crashou"*
-Recrutador: *olhando para o celular do dev*
-Dev: Hehe... começaria segunda?
+*Cena: Foco no Recrutador*
+Recutador: Ta contratado!
